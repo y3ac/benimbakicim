@@ -1,0 +1,23 @@
+{
+  "name": "benimbakicim-matching",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Benim Bakicim - otomatik bakici/yardimci eslestirme sistemi (WhatsApp Cloud API + odeme + eslestirme)",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "simulate": "node scripts/simulate.js",
+    "init-db": "node scripts/init-db.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "iyzipay": "^2.0.64"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
