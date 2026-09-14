@@ -305,6 +305,18 @@ export const conversations = {
   },
 };
 
+// ---------------- Processed messages (Meta tekrar gonderimlerine karsi) ----------------
+export const processedMessages = {
+  // Mesaj ilk kez goruluyorsa true doner; tekrar gonderimde false.
+  claim(messageId) {
+    if (!messageId) return true;
+    const { changes } = getDb()
+      .prepare('INSERT OR IGNORE INTO processed_messages (message_id) VALUES (?)')
+      .run(messageId);
+    return changes > 0;
+  },
+};
+
 // ---------------- Events (denetim / aksiyon gunlugu) ----------------
 export const events = {
   add({ type, listingCode, waId, actor, detail }) {

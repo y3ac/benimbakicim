@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://benimbakicim.com/sitemap.xml
+
+# Form thank-you page — noindex handled via meta
+Disallow: /pages/tesekkur.html

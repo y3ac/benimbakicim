@@ -1,15 +1,34 @@
-import Database from 'better-sqlite3';
+import initSqlJs from 'sql.js';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import logger from '../utils/logger.js';
+import { SCHEMA_SQL } from './schema.js';
+import { CompatDatabase, setPersistHook } from './adapter.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.resolve(__dirname, '..', '..', 'data');
+const isServerless = () =>
+  Boolean(process.env.SERVERLESS_DB || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME);
 
+const resolveDataDir = () => {
+  if (isServerless()) return '/tmp';
+  if (fs.existsSync(path.join(process.cwd(), 'src', 'index.js'))) {
+    return path.join(process.cwd(), 'data');
+  }
+  return path.join(process.cwd(), 'server', 'data');
+};
+
+let sqlPromise;
 let db;
+let dbPath;
 
-// Ek kolonlari guvenli sekilde ekle (var olan veritabanlarini bozmadan).
+const loadSql = () => {
+  if (!sqlPromise) {
+    sqlPromise = initSqlJs({
+      locateFile: (file) => path.join(process.cwd(), 'node_modules/sql.js/dist', file),
+    });
+  }
+  return sqlPromise;
+};
+
 const runMigrations = (database) => {
   const cols = database.prepare('PRAGMA table_info(payments)').all().map((c) => c.name);
   if (!cols.includes('provider_ref')) {
@@ -18,17 +37,56 @@ const runMigrations = (database) => {
   }
 };
 
-export const getDb = () => {
+export const persistDb = () => {
+  if (!db || !dbPath) return;
+  try {
+    const bytes = db.exportBytes();
+    fs.writeFileSync(dbPath, Buffer.from(bytes));
+  } catch (err) {
+    logger.warn(`DB persist hatasi: ${err.message}`);
+  }
+};
+
+export const exportDbBytes = () => {
+  if (!db) return null;
+  return db.exportBytes();
+};
+
+// Yerel gelistirmede her yazmadan sonra dosyaya kaydet.
+setPersistHook(() => {
+  if (!isServerless()) persistDb();
+});
+
+export const initDb = async () => {
   if (db) return db;
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  const dbPath = process.env.DB_PATH || path.join(DATA_DIR, 'benimbakicim.sqlite');
-  db = new Database(dbPath);
-  db.pragma('journal_mode = WAL');
+
+  const SQL = await loadSql();
+  const dataDir = resolveDataDir();
+  dbPath = process.env.DB_PATH || path.join(dataDir, 'benimbakicim.sqlite');
+
+  if (!isServerless() && !fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+
+  let nativeDb;
+  if (fs.existsSync(dbPath)) {
+    nativeDb = new SQL.Database(fs.readFileSync(dbPath));
+  } else {
+    nativeDb = new SQL.Database();
+  }
+
+  db = new CompatDatabase(nativeDb);
   db.pragma('foreign_keys = ON');
-  const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-  db.exec(schema);
+  db.exec(SCHEMA_SQL);
   runMigrations(db);
-  logger.info(`SQLite hazir: ${dbPath}`);
+  persistDb();
+
+  logger.info(`SQLite hazir (sql.js): ${dbPath}`);
+  return db;
+};
+
+export const getDb = () => {
+  if (!db) throw new Error('DB henuz hazir degil — once await initDb() cagirin');
   return db;
 };
 

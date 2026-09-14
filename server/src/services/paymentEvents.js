@@ -1,10 +1,21 @@
 import logger from '../utils/logger.js';
-import { payments, listings, seekers } from '../repositories/index.js';
+import { payments, listings, seekers, conversations } from '../repositories/index.js';
 import { publishAndOffer } from '../listings/service.js';
 import { applyUnlock, finalizeMatching } from '../matching/engine.js';
 import wa from '../whatsapp/client.js';
 import messages from '../bot/messages.js';
 import { logEvent } from './audit.js';
+import { saveConversation } from '../store/blobs.js';
+
+const markSeekerPaid = async (waId, listingCode) => {
+  if (!waId) return;
+  conversations.save(waId, {
+    role: 'seeker',
+    state: 'matching',
+    context: { listingCode },
+  });
+  await saveConversation(waId, conversations.get(waId));
+};
 
 // Odeme "paid" oldugunda cagrilir. Pakete gore aksiyon alir.
 export const onPaymentPaid = async (reference) => {
@@ -26,18 +37,21 @@ export const onPaymentPaid = async (reference) => {
   const listing = listings.getByCode(payment.listing_code);
   if (!listing) return { ok: false, reason: 'listing_not_found' };
   const seeker = seekers.getById(listing.seeker_id);
+  const waId = payment.wa_id || seeker?.wa_id;
 
   if (payment.package === 'base_300') {
-    // Ilan yayinla + havuza teklif gonder
     const { listing: published } = await publishAndOffer(listing);
-    await wa.sendText(seeker.wa_id, messages.published(published));
-    // Eger toplama penceresi kisa/dolmussa hemen finalize denenebilir.
-    // Normalde scheduler match_deadline'da finalize eder.
+    if (waId) {
+      await wa.sendText(waId, messages.published(published));
+      await markSeekerPaid(waId, published.code);
+    }
+    logger.info(`Odeme tamamlandi ${reference} -> ilan ${published.code} yayinlandi`);
     return { ok: true, action: 'published', code: published.code };
   }
 
   if (payment.package === 'unlock_300' || payment.package === 'unlock_900') {
     const result = await applyUnlock(payment.listing_code, payment.package, reference);
+    if (waId) await markSeekerPaid(waId, payment.listing_code);
     return { ok: true, action: 'unlocked', code: payment.listing_code, ...result };
   }
 

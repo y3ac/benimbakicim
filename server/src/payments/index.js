@@ -4,6 +4,7 @@ import logger from '../utils/logger.js';
 import { generateReference } from '../utils/code.js';
 import { payments as paymentsRepo, listings as listingsRepo, seekers as seekersRepo } from '../repositories/index.js';
 import { logEvent } from '../services/audit.js';
+import { savePayBundle } from '../store/blobs.js';
 import iyzico from './iyzico.js';
 import paytr from './paytr.js';
 
@@ -96,6 +97,11 @@ export const createPayment = async ({ listingCode, waId, packageKey }) => {
     listingCode,
     waId,
     detail: { reference, package: packageKey, amount: pkg.amount, provider: provider.name },
+  });
+  await savePayBundle(reference, {
+    payment,
+    listing: listingsRepo.getByCode(listingCode),
+    seeker: seekersRepo.getByWaId(waId),
   });
   return payment;
 };

@@ -101,10 +101,11 @@ export const sendTemplate = (to, templateName, languageCode = 'tr', components =
 // Meta webhook imza dogrulamasi (X-Hub-Signature-256).
 export const verifySignature = (rawBody, signatureHeader) => {
   if (!config.whatsapp.appSecret) return true; // secret yoksa (yerel gelistirme) atla
-  if (!signatureHeader) return false;
+  if (!signatureHeader || !rawBody) return false;
+  const body = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(String(rawBody), 'utf8');
   const expected =
     'sha256=' +
-    crypto.createHmac('sha256', config.whatsapp.appSecret).update(rawBody).digest('hex');
+    crypto.createHmac('sha256', config.whatsapp.appSecret).update(body).digest('hex');
   try {
     return crypto.timingSafeEqual(Buffer.from(signatureHeader), Buffer.from(expected));
   } catch {

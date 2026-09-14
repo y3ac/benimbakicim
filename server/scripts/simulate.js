@@ -12,8 +12,8 @@ process.env.DB_PATH = testDbPath;
 process.env.DRY_RUN = 'true';
 process.env.MATCH_WINDOW_HOURS = '0'; // hemen finalize edilebilsin
 
-const { getDb } = await import('../src/db/index.js');
-getDb();
+const { initDb, getDb } = await import('../src/db/index.js');
+await initDb();
 
 const { handleInbound } = await import('../src/bot/stateMachine.js');
 const { workers, listings, payments, reveals, applications } = await import(

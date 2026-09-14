@@ -1,12 +1,62 @@
 import express from 'express';
 import config from '../config.js';
 import logger from '../utils/logger.js';
-import { payments } from '../repositories/index.js';
+import { payments, listings, seekers } from '../repositories/index.js';
 import { verifyPaymentSignature, verifyPaytrCallback } from '../payments/index.js';
 import iyzico from '../payments/iyzico.js';
 import { onPaymentPaid } from '../services/paymentEvents.js';
+import { loadPayBundle, savePayBundle } from '../store/blobs.js';
 
 const router = express.Router();
+
+const restorePayment = async (reference) => {
+  let payment = payments.getByReference(reference);
+  if (payment) return payment;
+  const bundle = await loadPayBundle(reference);
+  if (!bundle?.payment) return null;
+  const row = bundle.payment;
+  const listingRow = bundle.listing;
+  if (bundle.seeker?.wa_id) {
+    seekers.upsert({
+      waId: bundle.seeker.wa_id,
+      name: bundle.seeker.name,
+      kvkkOk: Boolean(bundle.seeker.kvkk_ok),
+    });
+  } else if (row.wa_id) {
+    seekers.upsert({ waId: row.wa_id, kvkkOk: true });
+  }
+  if (listingRow && !listings.getByCode(listingRow.code)) {
+    const seeker = seekers.getByWaId(row.wa_id);
+    listings.create({
+      code: listingRow.code,
+      seekerId: seeker?.id,
+      source: listingRow.source,
+      serviceType: listingRow.service_type,
+      district: listingRow.district,
+      liveIn: listingRow.live_in,
+      salaryMin: listingRow.salary_min,
+      salaryMax: listingRow.salary_max,
+      startDate: listingRow.start_date,
+      notes: listingRow.notes,
+      aiText: listingRow.ai_text,
+      status: listingRow.status || 'awaiting_payment',
+    });
+  }
+  if (!payments.getByReference(row.reference)) {
+    payments.create({
+      reference: row.reference,
+      listingCode: row.listing_code,
+      waId: row.wa_id,
+      package: row.package,
+      amount: row.amount,
+      provider: row.provider,
+      link: row.link,
+      providerRef: row.provider_ref,
+    });
+  }
+  logger.info(`Odeme blob'dan geri yuklendi ${reference}`);
+  return payments.getByReference(reference);
+};
 
 // Odeme saglayici webhook'u (iyzico/PayTR/mock). reference + durum bildirir.
 router.post('/payments/webhook', async (req, res) => {
@@ -75,8 +125,8 @@ router.post('/payments/paytr/callback', async (req, res) => {
 });
 
 // Hosted checkout stub (mock/gelistirme). Gercek saglayicida bu sayfa saglayicida barinar.
-router.get('/pay/:reference', (req, res) => {
-  const payment = payments.getByReference(req.params.reference);
+router.get('/pay/:reference', async (req, res) => {
+  const payment = await restorePayment(req.params.reference);
   if (!payment) return res.status(404).send('Ödeme bulunamadı');
   if (payment.status === 'paid') return res.send('<h2>Bu ödeme zaten tamamlandı.</h2>');
   res.set('Content-Type', 'text/html; charset=utf-8');
@@ -112,10 +162,15 @@ router.post('/pay/:reference/complete', async (req, res) => {
   if (config.payments.provider !== 'mock' && !config.dryRun) {
     return res.status(403).json({ error: 'Bu uç yalnızca mock/dry-run ortamında kullanılır' });
   }
-  const payment = payments.getByReference(req.params.reference);
+  const payment = await restorePayment(req.params.reference);
   if (!payment) return res.status(404).json({ error: 'not_found' });
   try {
     await onPaymentPaid(payment.reference);
+    await savePayBundle(payment.reference, {
+      payment: payments.getByReference(payment.reference),
+      listing: listings.getByCode(payment.listing_code),
+      seeker: seekers.getByWaId(payment.wa_id),
+    });
     res.json({ ok: true });
   } catch (err) {
     logger.error('mock complete hatasi', err.message);

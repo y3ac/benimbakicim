@@ -1,0 +1,25 @@
+{
+  "name": "benimbakicim-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Benim Bakicim - web sitesi + Netlify Functions backend",
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "build:cf": "node scripts/build-cloudflare.mjs",
+    "deploy": "netlify deploy --prod",
+    "bundle:functions": "esbuild netlify/lib/serverHandler.mjs --bundle --platform=node --format=cjs --outfile=netlify/lib/api_bundle.cjs --external:iyzipay --external:sql.js && esbuild netlify/lib/matchingHandler.mjs --bundle --platform=node --format=cjs --outfile=netlify/lib/matching_bundle.cjs --external:iyzipay --external:sql.js"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0",
+    "dotenv": "^16.4.7",
+    "esbuild": "^0.25.9",
+    "express": "^4.21.2",
+    "iyzipay": "^2.0.64",
+    "serverless-http": "^3.2.0",
+    "sql.js": "^1.12.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

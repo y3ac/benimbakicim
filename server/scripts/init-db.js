@@ -1,4 +1,4 @@
-import { getDb } from '../src/db/index.js';
+import { initDb } from '../src/db/index.js';
 
-getDb();
+await initDb();
 console.log('Veritabani hazir (data/benimbakicim.sqlite).');

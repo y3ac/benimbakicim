@@ -21,17 +21,28 @@ router.get('/webhook', (req, res) => {
 // Gelen mesajlar (POST)
 router.post('/webhook', async (req, res) => {
   const signature = req.get('x-hub-signature-256');
-  if (!wa.verifySignature(req.rawBody, signature)) {
+  logger.info(`Webhook POST alindi (imza: ${signature ? 'var' : 'yok'})`);
+  let rawBody = req.rawBody;
+  // serverless-http yedegi: Lambda event govdesinden al
+  if (!rawBody && req.apiGateway?.event?.body != null) {
+    const ev = req.apiGateway.event;
+    rawBody = ev.isBase64Encoded
+      ? Buffer.from(ev.body, 'base64')
+      : Buffer.from(ev.body, 'utf8');
+  }
+  if (!wa.verifySignature(rawBody, signature)) {
     logger.warn('WhatsApp webhook imza dogrulanamadi');
     return res.sendStatus(401);
   }
-  // Meta 20 sn icinde 200 bekler; isi asenkron yap.
-  res.sendStatus(200);
+  // Serverless'ta yanit dondukten sonra calisma donar; bekleyen is yarim kalir ve
+  // bir sonraki istekte devam ederek mesajlarin tekrar gonderilmesine yol acar.
+  // Bu yuzden isi bitirmeden 200 donmuyoruz (Meta 20 sn tolere eder).
   try {
     await processWebhookPayload(req.body);
   } catch (err) {
     logger.error('Webhook isleme hatasi', err.message);
   }
+  res.sendStatus(200);
 });
 
 export default router;

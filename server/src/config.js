@@ -1,9 +1,8 @@
 import dotenv from 'dotenv';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
+// Yerelde .env okunur; Netlify'da paneldeki env kullanilir.
+// fileURLToPath(import.meta.url) Netlify bundle'inda kirildigi icin kullanilmiyor.
+dotenv.config();
 
 const bool = (v, fallback = false) => {
   if (v === undefined || v === null || v === '') return fallback;

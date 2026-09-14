@@ -1,7 +1,7 @@
 import express from 'express';
 import config, { isAiEnabled, isWhatsappLive } from './config.js';
 import logger from './utils/logger.js';
-import { getDb } from './db/index.js';
+import { getDb, initDb } from './db/index.js';
 import webhookRouter from './routes/webhook.js';
 import paymentsRouter from './routes/payments.js';
 import apiRouter from './routes/api.js';
@@ -65,18 +65,24 @@ export const startScheduler = () => {
 
 const isMain = process.argv[1] && process.argv[1].endsWith('index.js');
 if (isMain) {
-  getDb();
-  const app = createApp();
-  app.listen(config.port, () => {
-    logger.info(`Benim Bakicim eslestirme sistemi calisiyor: ${config.publicBaseUrl} (port ${config.port})`);
-    logger.info(
-      `Mod: dryRun=${config.dryRun}, whatsappLive=${isWhatsappLive()}, ai=${isAiEnabled()}, odeme=${config.payments.provider}`
-    );
-    runSelfCheck()
-      .then((r) => logger.info(`Self-check: ${JSON.stringify(r.checks)}`))
-      .catch((err) => logger.warn('Self-check hatasi:', err.message));
+  const boot = async () => {
+    await initDb();
+    const app = createApp();
+    app.listen(config.port, () => {
+      logger.info(`Benim Bakicim eslestirme sistemi calisiyor: ${config.publicBaseUrl} (port ${config.port})`);
+      logger.info(
+        `Mod: dryRun=${config.dryRun}, whatsappLive=${isWhatsappLive()}, ai=${isAiEnabled()}, odeme=${config.payments.provider}`
+      );
+      runSelfCheck()
+        .then((r) => logger.info(`Self-check: ${JSON.stringify(r.checks)}`))
+        .catch((err) => logger.warn('Self-check hatasi:', err.message));
+    });
+    startScheduler();
+  };
+  boot().catch((err) => {
+    logger.error('Sunucu baslatilamadi', err.message);
+    process.exit(1);
   });
-  startScheduler();
 }
 
 export default createApp;
