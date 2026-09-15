@@ -149,17 +149,53 @@ function initCookieBanner() {
   });
 }
 
-/* Form Handling — Netlify Forms */
+/* Form Handling — Cloudflare Pages Function */
 function initForms() {
   document.querySelectorAll('.contact-form').forEach(form => {
-    form.addEventListener('submit', () => {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
       const btn = form.querySelector('[type="submit"]');
+      const originalText = btn?.textContent;
       if (btn) {
         btn.textContent = 'Gönderiliyor...';
         btn.disabled = true;
       }
+
+      const data = new FormData(form);
+      data.set('page', window.location.href);
+
+      try {
+        const endpoint = (typeof SITE !== 'undefined' && SITE.formEndpoint) || '/api/form';
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body: data
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.ok === false) {
+          throw new Error(result.error || 'Form gonderilemedi');
+        }
+        window.location.href = (typeof SITE !== 'undefined' && SITE.thankYouUrl) || '/pages/tesekkur.html';
+      } catch (error) {
+        if (btn) {
+          btn.textContent = originalText || 'Gönder';
+          btn.disabled = false;
+        }
+        window.location.href = buildWhatsAppFallback(data);
+      }
     });
   });
+}
+
+function buildWhatsAppFallback(data) {
+  const number = (typeof SITE !== 'undefined' && SITE.whatsappNumber) || '905355963545';
+  const lines = [
+    'Benim Bakicim form talebi',
+    `Ad: ${data.get('name') || ''}`,
+    `Telefon: ${data.get('phone') || ''}`,
+    `Hizmet: ${data.get('service') || ''}`,
+    `Mesaj: ${data.get('message') || ''}`
+  ];
+  return `https://wa.me/${number}?text=${encodeURIComponent(lines.join('\n'))}`;
 }
 
 /* Header Scroll Effect */

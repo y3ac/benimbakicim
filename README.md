@@ -7,7 +7,7 @@
 - Referans site ([Erenköy Danışmanlık](https://www.erenkoydanismanlik.com/)) yapısına benzer modern tasarım
 - Türkmen, Özbek ve yabancı uyruklu bakıcı odaklı içerik
 - Hero slider, istatistikler, hizmet kartları, referanslar, FAQ
-- Talep formları (Netlify Forms + KVKK onaylı)
+- Talep formları (Cloudflare Pages Function + KVKK onaylı)
 - Mobil uyumlu responsive tasarım
 - WhatsApp / telefon floating butonları
 
@@ -28,38 +28,40 @@
 ## Yerel Geliştirme
 
 ```bash
-cd benimbakicim
-python3 -m http.server 8080
+npm run preview:cf
 ```
 
-Tarayıcıda: http://localhost:8080
+Tarayıcıda: http://localhost:8788
+
+Statik önizleme:
+
+```bash
+python3 -m http.server 8080
+```
 
 ## Özelleştirme
 
 1. **WhatsApp:** `0535 596 35 45` — tüm formlarda geri dönüş kanalı
-2. **Formlar:** Netlify Forms (`talep` ve `ilan`) — gönderimler Netlify panelinde görünür
+2. **Formlar:** `/api/form` (Cloudflare Pages Function). Dashboard’da `NOTIFY_WEBHOOK_URL` veya KV binding `FORMS` ekleyin; yoksa gönderim başarısız olursa WhatsApp yedek kanalı açılır
 3. **Adres:** İletişim bölümlerindeki adres bilgisini güncelleyin
 
 ## Deployment (Cloudflare Pages)
 
-1. Bu repo GitHub’a bağlı: https://github.com/y3ac/benimbakicim
+1. Repo: https://github.com/y3ac/benimbakicim
 2. [Cloudflare Dashboard](https://dash.cloudflare.com) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
 3. `y3ac/benimbakicim` reposunu seçin
 4. Ayarlar:
    - **Framework preset:** None
-   - **Build command:** `npm run build:cf`
+   - **Build command:** `npm run build`
    - **Build output directory:** `dist`
    - **Production branch:** `main`
 5. Domain: Pages → Custom domains → `benimbakicim.com`
 
-Yerel deneme:
+Form bildirimleri için Pages → Settings → Environment variables:
 
-```bash
-npm run build:cf
-npx wrangler pages deploy dist --project-name=benimbakicim
-```
+- `NOTIFY_WEBHOOK_URL` (Make / Zapier / Discord webhook)
 
-Not: Formlar ve `/api`, `/payments`, `/webhook` uçları Netlify Functions’a bağlıdır. Cloudflare yalnızca statik siteyi yayınlar; backend ayrı bir Worker veya mevcut Netlify backend ile çalışmalıdır.
+WhatsApp eşleştirme backend’i (`/webhook`, `/payments`, `/admin`) bu statik yayına dahil değildir.
 
 ## SEO
 

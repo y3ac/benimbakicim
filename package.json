@@ -2,11 +2,14 @@
   "name": "benimbakicim-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Benim Bakicim - web sitesi + Netlify Functions backend",
+  "description": "Benim Bakicim - web sitesi + Cloudflare Pages",
   "type": "module",
   "scripts": {
     "dev": "netlify dev",
+    "build": "node scripts/build-cloudflare.mjs",
     "build:cf": "node scripts/build-cloudflare.mjs",
+    "verify:cf": "node scripts/verify-cloudflare.mjs",
+    "preview:cf": "npm run build:cf && wrangler pages dev dist --port 8788",
     "deploy": "netlify deploy --prod",
     "bundle:functions": "esbuild netlify/lib/serverHandler.mjs --bundle --platform=node --format=cjs --outfile=netlify/lib/api_bundle.cjs --external:iyzipay --external:sql.js && esbuild netlify/lib/matchingHandler.mjs --bundle --platform=node --format=cjs --outfile=netlify/lib/matching_bundle.cjs --external:iyzipay --external:sql.js"
   },

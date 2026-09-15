@@ -8,7 +8,7 @@ const WA_DISPLAY = '0535 596 35 45';
 const EMAIL = 'info@benimbakicim.com';
 
 const FORM_ATTRS =
-  'name="talep" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/pages/tesekkur.html"';
+  'name="talep" method="POST" action="/api/form"';
 const FORM_HIDDEN = `<input type="hidden" name="form-name" value="talep">
             <p class="netlify-honeypot" style="display:none" aria-hidden="true"><label>Boş bırakın <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>`;
 

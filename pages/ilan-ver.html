@@ -128,7 +128,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="form-card">
         <h3>Bakıcı İlan Formu</h3>
         <p class="text-muted" style="margin-bottom:24px;">Formu doldurun; ilan talebiniz alınır, geri dönüş WhatsApp üzerinden yapılır.</p>
-        <form class="contact-form" name="ilan" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/pages/tesekkur.html">
+        <form class="contact-form" name="ilan" method="POST" action="/api/form">
             <input type="hidden" name="form-name" value="ilan">
             <p class="netlify-honeypot" style="display:none" aria-hidden="true"><label>Boş bırakın <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
             <div class="form-row"><div class="form-group"><label>Ad Soyad</label><input type="text" name="name" required placeholder="Adınız"></div><div class="form-group"><label>WhatsApp / Telefon</label><input type="tel" name="phone" required placeholder="05XX XXX XX XX"></div></div>
