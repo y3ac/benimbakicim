@@ -68,4 +68,8 @@ if (pageCount < 20) {
   throw new Error(`Expected 20+ HTML pages, found ${pageCount}`)
 }
 
+if (!existsSync(join(dist, '_worker.js'))) {
+  throw new Error('Missing dist/_worker.js (functions bundle)')
+}
+
 console.log(`Cloudflare verify OK (${pageCount} pages, dist/ is clean)`)

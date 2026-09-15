@@ -45,23 +45,24 @@ python3 -m http.server 8080
 2. **Formlar:** `/api/form` (Cloudflare Pages Function). Dashboard’da `NOTIFY_WEBHOOK_URL` veya KV binding `FORMS` ekleyin; yoksa gönderim başarısız olursa WhatsApp yedek kanalı açılır
 3. **Adres:** İletişim bölümlerindeki adres bilgisini güncelleyin
 
-## Deployment (Cloudflare Pages)
+## Deployment (Cloudflare Workers + static assets)
+
+Bu proje Cloudflare'da **Pages değil, Worker** olarak bağlı (`benimbakicim`).
 
 1. Repo: https://github.com/y3ac/benimbakicim
-2. [Cloudflare Dashboard](https://dash.cloudflare.com) → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-3. `y3ac/benimbakicim` reposunu seçin
-4. Ayarlar:
-   - **Framework preset:** None
+2. [Cloudflare Dashboard](https://dash.cloudflare.com) → **Workers & Pages** → `benimbakicim`
+3. **Settings → Build**:
+   - **Path / Root directory:** boş
    - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-   - **Production branch:** `main`
-5. Domain: Pages → Custom domains → `benimbakicim.com`
+   - **Deploy command:** `npx wrangler deploy`
+4. `CLOUDFLARE_API_TOKEN` değişkenini **sil** (Workers Builds kendi auth'unu kullanır). Eğer tutarsan token'da `Account → Workers Scripts → Edit` olmalı.
+5. Domain: Worker → Custom domains → `benimbakicim.com`
 
-Form bildirimleri için Pages → Settings → Environment variables:
+Form bildirimleri için Settings → Variables:
 
 - `NOTIFY_WEBHOOK_URL` (Make / Zapier / Discord webhook)
 
-WhatsApp eşleştirme backend’i (`/webhook`, `/payments`, `/admin`) bu statik yayına dahil değildir.
+WhatsApp eşleştirme backend’i (`/webhook`, `/payments`, `/admin`) bu yayına dahil değildir.
 
 ## SEO
 
