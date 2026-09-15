@@ -9,6 +9,7 @@ const ALLOWED_FIELDS = [
   'start_date',
   'message',
   'budget',
+  'package',
   'kvkk',
   'page'
 ]

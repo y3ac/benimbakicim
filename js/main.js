@@ -164,6 +164,9 @@ function initForms() {
       const data = new FormData(form);
       data.set('page', window.location.href);
 
+      const formName = String(data.get('form-name') || form.getAttribute('name') || '');
+      const isListingForm = formName === 'ilan' || form.dataset.redirect === 'payment';
+
       try {
         const endpoint = (typeof SITE !== 'undefined' && SITE.formEndpoint) || '/api/form';
         const response = await fetch(endpoint, {
@@ -174,16 +177,159 @@ function initForms() {
         if (!response.ok || result.ok === false) {
           throw new Error(result.error || 'Form gonderilemedi');
         }
+
+        if (isListingForm) {
+          saveListingDraft(data);
+          window.location.href = buildListingPaymentPageUrl(data);
+          return;
+        }
+
         window.location.href = (typeof SITE !== 'undefined' && SITE.thankYouUrl) || '/pages/tesekkur.html';
       } catch (error) {
         if (btn) {
           btn.textContent = originalText || 'Gönder';
           btn.disabled = false;
         }
+        if (isListingForm) {
+          saveListingDraft(data);
+          window.location.href = buildListingPaymentPageUrl(data);
+          return;
+        }
         window.location.href = buildWhatsAppFallback(data);
       }
     });
   });
+
+  initPackageCards();
+  initPaymentPage();
+}
+
+function getListingPackages() {
+  if (typeof SITE !== 'undefined' && Array.isArray(SITE.listingPackages)) {
+    return SITE.listingPackages;
+  }
+  return [];
+}
+
+function findListingPackage(packageId) {
+  const packages = getListingPackages();
+  return packages.find((item) => item.id === packageId) || packages[0] || null;
+}
+
+function saveListingDraft(data) {
+  const draft = {
+    name: String(data.get('name') || ''),
+    phone: String(data.get('phone') || ''),
+    service: String(data.get('service') || ''),
+    workType: String(data.get('work_type') || ''),
+    district: String(data.get('district') || ''),
+    startDate: String(data.get('start_date') || ''),
+    message: String(data.get('message') || ''),
+    budget: String(data.get('budget') || ''),
+    packageId: String(data.get('package') || 'standart'),
+    savedAt: new Date().toISOString()
+  };
+  try {
+    sessionStorage.setItem('listingDraft', JSON.stringify(draft));
+  } catch (_) {
+    /* ignore storage errors */
+  }
+  return draft;
+}
+
+function readListingDraft() {
+  try {
+    const raw = sessionStorage.getItem('listingDraft');
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function buildListingPaymentPageUrl(data) {
+  const base = (typeof SITE !== 'undefined' && SITE.listingPaymentPage) || '/pages/odeme.html';
+  const packageId = String(data.get('package') || 'standart');
+  const url = new URL(base, window.location.origin);
+  url.searchParams.set('paket', packageId);
+  return `${url.pathname}${url.search}`;
+}
+
+function buildListingPaymentUrl(draft) {
+  const pkg = findListingPackage(draft?.packageId || 'standart');
+  const configured = typeof SITE !== 'undefined' ? SITE.listingPaymentUrl : '';
+  if (configured) return configured;
+
+  const number = (typeof SITE !== 'undefined' && SITE.whatsappNumber) || '905355963545';
+  const lines = [
+    'Merhaba, ilan paketimi ödemek istiyorum.',
+    `Paket: ${pkg?.name || 'Standart İlan Paketi'} (${pkg?.priceLabel || '1.000 TL'})`,
+    `Ad: ${draft?.name || ''}`,
+    `Telefon: ${draft?.phone || ''}`,
+    `Aranan: ${draft?.service || ''}`,
+    `Çalışma şekli: ${draft?.workType || ''}`,
+    `Semt: ${draft?.district || ''}`,
+    'Ödeme tamamlandıktan sonra ilanımın yayınlanmasını rica ederim.'
+  ];
+  return `https://wa.me/${number}?text=${encodeURIComponent(lines.filter(Boolean).join('\n'))}`;
+}
+
+function initPackageCards() {
+  const cards = document.querySelectorAll('[data-package-id]');
+  const packageInput = document.querySelector('input[name="package"]');
+  if (!cards.length || !packageInput) return;
+
+  const selectPackage = (packageId) => {
+    packageInput.value = packageId;
+    cards.forEach((card) => {
+      const selected = card.getAttribute('data-package-id') === packageId;
+      card.classList.toggle('is-selected', selected);
+      card.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    });
+  };
+
+  cards.forEach((card) => {
+    card.addEventListener('click', (event) => {
+      selectPackage(card.getAttribute('data-package-id'))
+      if (event.target.closest('a[href="#ilan-formu"]')) return
+    })
+    card.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        selectPackage(card.getAttribute('data-package-id'))
+      }
+    })
+  })
+
+  selectPackage(packageInput.value || 'standart');
+}
+
+function initPaymentPage() {
+  const page = document.querySelector('[data-payment-page]');
+  if (!page) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const draft = readListingDraft() || {};
+  const packageId = params.get('paket') || draft.packageId || 'standart';
+  const pkg = findListingPackage(packageId);
+  draft.packageId = packageId;
+
+  const nameEl = page.querySelector('[data-pay-name]');
+  const phoneEl = page.querySelector('[data-pay-phone]');
+  const serviceEl = page.querySelector('[data-pay-service]');
+  const packageEl = page.querySelector('[data-pay-package]');
+  const priceEl = page.querySelector('[data-pay-price]');
+  const payBtn = page.querySelector('[data-pay-button]');
+
+  if (nameEl) nameEl.textContent = draft.name || '—';
+  if (phoneEl) phoneEl.textContent = draft.phone || '—';
+  if (serviceEl) serviceEl.textContent = draft.service || '—';
+  if (packageEl) packageEl.textContent = pkg?.name || 'Standart İlan Paketi';
+  if (priceEl) priceEl.textContent = pkg?.priceLabel || '1.000 TL';
+  if (payBtn) {
+    payBtn.setAttribute('href', buildListingPaymentUrl(draft));
+    payBtn.setAttribute('target', '_blank');
+    payBtn.setAttribute('rel', 'noopener');
+  }
 }
 
 function buildWhatsAppFallback(data) {

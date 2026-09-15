@@ -253,9 +253,9 @@ const PAGE_SEO = {
   },
   'pages/ilan-ver.html': {
     path: '/pages/ilan-ver.html',
-    title: 'Bakıcı İlan Ver | Yardımcı & Temizlik İlanı — Ücretsiz',
-    description: 'Bakıcı arıyorum ilanı verin — bebek bakıcısı, yardımcı, ev temizliği, gündelikçi için ücretsiz ilan. Hızlı eşleştirme.',
-    keywords: 'bakıcı ilan ver, bakıcı arıyorum ilan, yardımcı ilanı, ev yardımcısı ilanı, temizlik ilanı',
+    title: 'Bakıcı İlan Ver | İlan Paketleri — Benim Bakıcım',
+    description: 'Bakıcı, yardımcı veya temizlik ilanı verin. 1.000 TL ilan paketi ile ilanınız yayınlanır; başvuran adaylar WhatsApp ile paylaşılır.',
+    keywords: 'bakıcı ilan ver, bakıcı ilan paketi, yardımcı ilanı, ev yardımcısı ilanı, temizlik ilanı',
   },
   'pages/is-ilanlari.html': {
     path: '/pages/is-ilanlari.html',

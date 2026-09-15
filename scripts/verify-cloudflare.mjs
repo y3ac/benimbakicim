@@ -20,6 +20,7 @@ const required = [
   'index.html',
   'pages/iletisim.html',
   'pages/tesekkur.html',
+  'pages/odeme.html',
   'css/styles.css',
   'js/main.js',
   'js/config.js',
