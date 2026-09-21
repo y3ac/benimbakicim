@@ -6,7 +6,7 @@ const { base, unlock2, unlock6, revealBaseCount } = config.pricing;
 export const messages = {
   welcome:
     'Merhaba, Benim Bakıcım\'a hoş geldiniz. Size nasıl yardımcı olabiliriz?\n\n' +
-    'Referanslı bakıcı ve yardımcı eşleştirmesi yapıyoruz.',
+    'İlanınızı bakıcı/yardımcı havuzunda yayınlar, başvuruları size iletiriz.',
 
   askIntent: 'Lütfen size uygun olanı seçin:',
   intentButtons: [
@@ -15,11 +15,11 @@ export const messages = {
   ],
 
   kvkkSeeker:
-    'Devam etmeden önce: Paylaştığınız bilgiler yalnızca size uygun aday eşleştirmek için ' +
+    'Devam etmeden önce: Paylaştığınız bilgiler yalnızca ilan yayını ve başvuru iletimi için ' +
     'kullanılır. Onaylıyor musunuz?',
   kvkkWorker:
     'Devam etmeden önce: Bilgileriniz ve numaranız, ödeme yapan ilan sahibine yalnızca ' +
-    'eşleştirme için iletilebilir. Onaylıyor musunuz?',
+    'başvuru iletimi için iletilebilir. Onaylıyor musunuz?',
   kvkkButtons: [
     { id: 'kvkk_yes', title: 'Onaylıyorum' },
     { id: 'kvkk_no', title: 'Vazgeç' },
@@ -47,33 +47,41 @@ export const messages = {
 
   paymentIntro: (listing) =>
     `İlan kodunuz: ${listing.code}\n\n` +
-    `İlanınızı yayınlamak ve size en uygun ${revealBaseCount} adayın numarasını iletmek için ` +
-    `ilan paketi ücreti ${base} TL'dir. Ödeme sonrası ilanınız otomatik yayınlanır.`,
+    `Ödeme yalnızca WhatsApp katalog üzerinden alınır.\n` +
+    `İlan paketi ${base} TL — paket başına en fazla ${revealBaseCount} başvuran numarası.\n` +
+    'Ödemeyi katalogdan tamamladıktan sonra ilan bilgilerinizi yazarak ilanınızı oluşturursunuz.',
 
-  paymentLink: (payment) =>
-    `Ödeme için bağlantı:\n${payment.link}\n\n` +
-    'Ödeme tamamlanınca ilanınız yayınlanacak ve başvurular toplanmaya başlayacaktır.',
+  catalogPaymentHint:
+    'Yukarıdaki katalog ürününden ödemeyi tamamlayın. Ödeme onayından sonra ilan detaylarınızı soracağız.',
+
+  paymentReceivedAskListing:
+    'Ödemeniz alındı. Şimdi ilanınızı oluşturalım.\n\n' +
+    'Ne tür bir bakıcı/yardımcı arıyorsunuz? (bebek, çocuk, yaşlı, hasta, temizlik, ev yardımcısı)',
+
+  paymentLink: () =>
+    'Ödeme yalnızca WhatsApp katalog üzerinden yapılır. Katalog ürününü kullanarak ödemeyi tamamlayın.',
 
   published: (listing) =>
     `İlanınız (${listing.code}) yayınlandı. Başvurular toplanıyor.\n` +
-    'Uygun adaylar belirlendiğinde bilgilerini buradan ileteceğiz.',
+    `Paket başına en fazla ${revealBaseCount} başvuran numarası WhatsApp ile iletilecek.\n` +
+    'Referans kontrolü / ön görüşme yapmıyoruz; görüşmeyi siz yönetirsiniz.',
 
   noCandidatesYet: (listing) =>
-    `İlanınız (${listing.code}) için henüz yeterli aday oluşmadı. ` +
-    'Havuzumuzdaki uygun adaylara ilanınız iletildi; başvuru geldikçe sizi bilgilendireceğiz.',
+    `İlanınız (${listing.code}) için henüz yeterli başvuru oluşmadı. ` +
+    'Havuzdaki uygun adaylara ilanınız iletildi; başvuru geldikçe sizi bilgilendireceğiz.',
 
   topReveal: (listing, revealed, remainingCount) => {
-    const lines = [`İlan ${listing.code} için en uygun adaylar:\n`];
+    const lines = [`İlan ${listing.code} için iletilen başvurular:\n`];
     revealed.forEach((c, i) => {
       lines.push(
-        `${i + 1}. ${c.name || 'Aday'} — ${c.summary}\n   📞 ${c.phone}`
+        `${i + 1}. ${c.name || 'Başvuran'} — ${c.summary}\n   📞 ${c.phone}`
       );
     });
     if (remainingCount > 0) {
       lines.push('');
       lines.push(
-        `Ayrıca ${remainingCount} uygun aday daha var (isim ve yetenekleri aşağıda; ` +
-        'numaraları için ek paket gerekir).'
+        `Ayrıca ${remainingCount} başvuru daha var. ` +
+        'Ek numaralar için aynı paketi tekrar satın almanız gerekir.'
       );
     }
     return lines.join('\n');

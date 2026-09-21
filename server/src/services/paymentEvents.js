@@ -17,6 +17,11 @@ const markSeekerPaid = async (waId, listingCode) => {
   await saveConversation(waId, conversations.get(waId));
 };
 
+const isPrepaidShell = (listing) =>
+  listing?.source === 'whatsapp_prepaid' ||
+  listing?.service_type === 'genel' ||
+  /ödeme sonrası/i.test(listing?.notes || '');
+
 // Odeme "paid" oldugunda cagrilir. Pakete gore aksiyon alir.
 export const onPaymentPaid = async (reference) => {
   const payment = payments.getByReference(reference);
@@ -40,6 +45,27 @@ export const onPaymentPaid = async (reference) => {
   const waId = payment.wa_id || seeker?.wa_id;
 
   if (payment.package === 'base_300') {
+    // Once odeme: once katalog odendi, simdi ilan detaylarini topla.
+    if (isPrepaidShell(listing)) {
+      if (waId) {
+        conversations.save(waId, {
+          role: 'seeker',
+          state: 'seeker_service',
+          context: {
+            kvkkOk: true,
+            listingCode: listing.code,
+            prepaid: true,
+            prepaidPaid: true,
+            name: seeker?.name,
+          },
+        });
+        await saveConversation(waId, conversations.get(waId));
+        await wa.sendText(waId, messages.paymentReceivedAskListing);
+      }
+      logger.info(`Odeme tamamlandi ${reference} -> ilan detayi bekleniyor (${listing.code})`);
+      return { ok: true, action: 'awaiting_listing_details', code: listing.code };
+    }
+
     const { listing: published } = await publishAndOffer(listing);
     if (waId) {
       await wa.sendText(waId, messages.published(published));

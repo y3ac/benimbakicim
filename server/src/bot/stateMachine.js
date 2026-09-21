@@ -17,7 +17,7 @@ import {
   detectSalaryRange,
   standaloneIntent,
 } from '../domain/taxonomy.js';
-import { createDraftListing } from '../listings/service.js';
+import { createDraftListing, publishAndOffer } from '../listings/service.js';
 import { createPayment, PACKAGES } from '../payments/index.js';
 import { requestCancellation } from '../services/approvals.js';
 
@@ -30,18 +30,23 @@ const setState = (waId, patch) => {
   });
 };
 
-// Odeme paketi mesaji: katalog varsa katalog urunu, yoksa link.
+// Odeme paketi: yalnizca WhatsApp katalog urunu (link yok).
 const sendPackageOffer = async (waId, listing, packageKey) => {
   const payment = await createPayment({ listingCode: listing.code, waId, packageKey });
-  if (config.whatsapp.catalogId) {
-    await wa.sendCatalogProduct(
+  if (!config.whatsapp.catalogId) {
+    await wa.sendText(
       waId,
-      messages.paymentIntro(listing),
-      PACKAGES[packageKey].retailer,
-      'Benim Bakıcım'
+      'Ödeme yalnızca WhatsApp katalog üzerinden alınır. Katalog henüz yapılandırılmamış; lütfen daha sonra tekrar deneyin veya danışmana yazın.'
     );
+    return payment;
   }
-  await wa.sendText(waId, messages.paymentLink(payment));
+  await wa.sendCatalogProduct(
+    waId,
+    messages.paymentIntro(listing),
+    PACKAGES[packageKey].retailer,
+    'WhatsApp katalog — Benim Bakıcım'
+  );
+  await wa.sendText(waId, messages.catalogPaymentHint);
   return payment;
 };
 
@@ -261,13 +266,28 @@ const seekerKvkk = async (waId, buttonId, text) => {
     return wa.sendButtons(waId, messages.kvkkSeeker, messages.kvkkButtons);
   }
   const pending = conversations.get(waId)?.context?.pendingServiceType;
-  if (pending) {
-    setState(waId, { state: 'seeker_district', context: { kvkkOk: true, serviceType: pending } });
-    await wa.sendText(waId, messages.askDistrict);
-    return;
-  }
-  setState(waId, { state: 'seeker_service', context: { kvkkOk: true } });
-  await wa.sendText(waId, messages.askService);
+  const name = conversations.get(waId)?.context?.name;
+  // Once odeme: once katalog, sonra ilan detayi.
+  const listing = await createDraftListing({
+    seekerWaId: waId,
+    seekerName: name,
+    kvkkOk: true,
+    criteria: {
+      serviceType: pending || 'genel',
+      district: 'belirlenecek',
+      liveIn: null,
+      salaryMin: null,
+      salaryMax: null,
+      notes: 'Ödeme sonrası ilan detayları tamamlanacak',
+      source: 'whatsapp_prepaid',
+    },
+  });
+  listings.setStatus(listing.code, 'awaiting_payment');
+  setState(waId, {
+    state: 'awaiting_payment',
+    context: { kvkkOk: true, listingCode: listing.code, prepaid: true, pendingServiceType: pending || null },
+  });
+  await sendPackageOffer(waId, listing, 'base_300');
 };
 
 const seekerService = async (waId, text, convo) => {
@@ -310,21 +330,49 @@ const seekerNotes = async (waId, name, text, convo) => {
   if (!raw) return wa.sendText(waId, messages.askNotes);
   const notes = /^yok$/i.test(raw) ? null : raw;
   const ctx = { ...convo.context, notes };
-  const listing = await createDraftListing({
-    seekerWaId: waId,
-    seekerName: ctx.name || name,
-    kvkkOk: ctx.kvkkOk,
-    criteria: {
+  let listing;
+  if (ctx.listingCode && ctx.prepaid) {
+    const aiText = [
+      `${ctx.serviceType || 'Bakıcı'} aranıyor`,
+      ctx.district ? `Semt: ${ctx.district}` : null,
+      ctx.liveIn === 1 ? 'Yatılı' : ctx.liveIn === 0 ? 'Gündüzlü' : null,
+      ctx.salaryMin || ctx.salaryMax
+        ? `Bütçe: ${ctx.salaryMin || '?'}–${ctx.salaryMax || '?'} TL`
+        : null,
+      notes,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+    listing = listings.updateDetails(ctx.listingCode, {
       serviceType: ctx.serviceType,
       district: ctx.district,
       liveIn: ctx.liveIn,
       salaryMin: ctx.salaryMin,
       salaryMax: ctx.salaryMax,
       notes,
+      aiText,
       source: 'whatsapp',
-    },
+    });
+  } else {
+    listing = await createDraftListing({
+      seekerWaId: waId,
+      seekerName: ctx.name || name,
+      kvkkOk: ctx.kvkkOk,
+      criteria: {
+        serviceType: ctx.serviceType,
+        district: ctx.district,
+        liveIn: ctx.liveIn,
+        salaryMin: ctx.salaryMin,
+        salaryMax: ctx.salaryMax,
+        notes,
+        source: 'whatsapp',
+      },
+    });
+  }
+  setState(waId, {
+    state: 'seeker_confirm',
+    context: { ...ctx, listingCode: listing.code },
   });
-  setState(waId, { state: 'seeker_confirm', context: { listingCode: listing.code } });
   await wa.sendButtons(
     waId,
     messages.summaryConfirm({ aiText: listing.ai_text }),
@@ -335,7 +383,10 @@ const seekerNotes = async (waId, name, text, convo) => {
 const seekerConfirm = async (waId, buttonId, text, convo) => {
   const code = convo.context.listingCode;
   if (buttonId === 'listing_edit' || /^(baştan|bastan)/i.test(text || '')) {
-    setState(waId, { state: 'seeker_service', context: {} });
+    setState(waId, {
+      state: 'seeker_service',
+      context: { kvkkOk: true, listingCode: code, prepaid: convo.context.prepaid },
+    });
     return wa.sendText(waId, messages.askService);
   }
   if (buttonId !== 'listing_confirm' && !isAffirmative(buttonId, text, 'listing_confirm')) {
@@ -346,8 +397,19 @@ const seekerConfirm = async (waId, buttonId, text, convo) => {
       messages.summaryButtons
     );
   }
-  const listing = listings.setStatus(code, 'awaiting_payment');
-  await wa.sendText(waId, messages.paymentIntro(listing));
+
+  const listing = listings.getByCode(code);
+  const paid = payments.listPaidByListing(code);
+  const alreadyPaid = paid.length > 0 || convo.context.prepaidPaid;
+
+  if (alreadyPaid) {
+    const { listing: published } = await publishAndOffer(listing);
+    setState(waId, { state: 'matching', context: { listingCode: published.code } });
+    await wa.sendText(waId, messages.published(published));
+    return;
+  }
+
+  listings.setStatus(code, 'awaiting_payment');
   await sendPackageOffer(waId, listing, 'base_300');
   setState(waId, { state: 'awaiting_payment', context: { listingCode: code } });
 };
@@ -369,7 +431,7 @@ const awaitingPayment = async (waId, convo) => {
   }
   await wa.sendText(
     waId,
-    `İlanınız (${code}) ödeme bekliyor. Ödeme tamamlanınca ilan otomatik yayınlanacaktır.`
+    `İlan paketiniz (${code}) WhatsApp katalog ödemesi bekliyor. Katalogdan ödemeyi tamamlayınca ilan bilgilerinizi yazarak ilanı oluşturabilirsiniz.`
   );
 };
 

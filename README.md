@@ -41,9 +41,11 @@ python3 -m http.server 8080
 
 ## Özelleştirme
 
-1. **WhatsApp:** `0535 596 35 45` — tüm formlarda geri dönüş kanalı
-2. **Formlar:** `/api/form` (Cloudflare Pages Function). Dashboard’da `NOTIFY_WEBHOOK_URL` veya KV binding `FORMS` ekleyin; yoksa gönderim başarısız olursa WhatsApp yedek kanalı açılır
-3. **Adres:** İletişim bölümlerindeki adres bilgisini güncelleyin
+1. **WhatsApp:** `0535 596 35 45` — başvuru iletimi ve ödeme yönlendirmesi
+2. **İlan paketi:** 1.000 TL — ödeme **yalnızca WhatsApp katalog** üzerinden. Ödeme sonrası ilan oluşturulur; paket başına en fazla 3 başvuran numarası.
+3. **Kapsam:** Yalnızca ilan yayını + başvuru iletimi. Referans kontrolü / ön görüşme / yerleştirme yok.
+4. **Formlar:** `/api/form` (Cloudflare). `NOTIFY_WEBHOOK_URL` veya KV `FORMS` eklenebilir
+5. **Adres:** İletişim bölümlerindeki adres bilgisini güncelleyin
 
 ## Deployment (Cloudflare Workers + static assets)
 

@@ -76,7 +76,7 @@ export const finalizeMatching = async (listingCode) => {
     await wa.sendText(
       seeker.wa_id,
       `İlan ${listing.code} için ${ranked.length} uygun aday oluştu. ` +
-        `En uygun ${config.pricing.revealBaseCount} adayın numarasını almak için ilan paketi ödemesi gerekir.`
+        `En fazla ${config.pricing.revealBaseCount} başvuranın numarasını almak için ilan paketi ödemesi gerekir.`
     );
     listings.setStatus(listingCode, 'matching');
     logEvent({

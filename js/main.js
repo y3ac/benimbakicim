@@ -179,8 +179,7 @@ function initForms() {
         }
 
         if (isListingForm) {
-          saveListingDraft(data);
-          window.location.href = buildListingPaymentPageUrl(data);
+          window.location.href = getCatalogPaymentUrl();
           return;
         }
 
@@ -191,8 +190,7 @@ function initForms() {
           btn.disabled = false;
         }
         if (isListingForm) {
-          saveListingDraft(data);
-          window.location.href = buildListingPaymentPageUrl(data);
+          window.location.href = getCatalogPaymentUrl();
           return;
         }
         window.location.href = buildWhatsAppFallback(data);
@@ -201,7 +199,26 @@ function initForms() {
   });
 
   initPackageCards();
+  initCatalogPayLinks();
   initPaymentPage();
+}
+
+function getCatalogPaymentUrl() {
+  if (typeof SITE !== 'undefined' && SITE.catalogPaymentUrl) {
+    return SITE.catalogPaymentUrl;
+  }
+  const number = (typeof SITE !== 'undefined' && SITE.whatsappNumber) || '905355963545';
+  const text =
+    (typeof SITE !== 'undefined' && SITE.catalogPaymentMessage) ||
+    'Merhaba, ilan paketi satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım.';
+  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+}
+
+function initCatalogPayLinks() {
+  const url = getCatalogPaymentUrl();
+  document.querySelectorAll('[data-catalog-pay]').forEach((el) => {
+    if (el.tagName === 'A') el.setAttribute('href', url);
+  });
 }
 
 function getListingPackages() {
@@ -227,6 +244,7 @@ function saveListingDraft(data) {
     message: String(data.get('message') || ''),
     budget: String(data.get('budget') || ''),
     packageId: String(data.get('package') || 'standart'),
+    applicantsPerPackage: (typeof SITE !== 'undefined' && SITE.applicantsPerPackage) || 3,
     savedAt: new Date().toISOString()
   };
   try {
@@ -246,31 +264,12 @@ function readListingDraft() {
   }
 }
 
-function buildListingPaymentPageUrl(data) {
-  const base = (typeof SITE !== 'undefined' && SITE.listingPaymentPage) || '/pages/odeme.html';
-  const packageId = String(data.get('package') || 'standart');
-  const url = new URL(base, window.location.origin);
-  url.searchParams.set('paket', packageId);
-  return `${url.pathname}${url.search}`;
+function buildListingPaymentPageUrl() {
+  return getCatalogPaymentUrl();
 }
 
-function buildListingPaymentUrl(draft) {
-  const pkg = findListingPackage(draft?.packageId || 'standart');
-  const configured = typeof SITE !== 'undefined' ? SITE.listingPaymentUrl : '';
-  if (configured) return configured;
-
-  const number = (typeof SITE !== 'undefined' && SITE.whatsappNumber) || '905355963545';
-  const lines = [
-    'Merhaba, ilan paketimi ödemek istiyorum.',
-    `Paket: ${pkg?.name || 'Standart İlan Paketi'} (${pkg?.priceLabel || '1.000 TL'})`,
-    `Ad: ${draft?.name || ''}`,
-    `Telefon: ${draft?.phone || ''}`,
-    `Aranan: ${draft?.service || ''}`,
-    `Çalışma şekli: ${draft?.workType || ''}`,
-    `Semt: ${draft?.district || ''}`,
-    'Ödeme tamamlandıktan sonra ilanımın yayınlanmasını rica ederim.'
-  ];
-  return `https://wa.me/${number}?text=${encodeURIComponent(lines.filter(Boolean).join('\n'))}`;
+function buildListingPaymentUrl() {
+  return getCatalogPaymentUrl();
 }
 
 function initPackageCards() {
@@ -288,45 +287,25 @@ function initPackageCards() {
   };
 
   cards.forEach((card) => {
-    card.addEventListener('click', (event) => {
-      selectPackage(card.getAttribute('data-package-id'))
-      if (event.target.closest('a[href="#ilan-formu"]')) return
-    })
+    card.addEventListener('click', () => {
+      selectPackage(card.getAttribute('data-package-id'));
+    });
     card.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault()
-        selectPackage(card.getAttribute('data-package-id'))
+        event.preventDefault();
+        selectPackage(card.getAttribute('data-package-id'));
       }
-    })
-  })
+    });
+  });
 
   selectPackage(packageInput.value || 'standart');
 }
 
 function initPaymentPage() {
-  const page = document.querySelector('[data-payment-page]');
-  if (!page) return;
-
-  const params = new URLSearchParams(window.location.search);
-  const draft = readListingDraft() || {};
-  const packageId = params.get('paket') || draft.packageId || 'standart';
-  const pkg = findListingPackage(packageId);
-  draft.packageId = packageId;
-
-  const nameEl = page.querySelector('[data-pay-name]');
-  const phoneEl = page.querySelector('[data-pay-phone]');
-  const serviceEl = page.querySelector('[data-pay-service]');
-  const packageEl = page.querySelector('[data-pay-package]');
-  const priceEl = page.querySelector('[data-pay-price]');
-  const payBtn = page.querySelector('[data-pay-button]');
-
-  if (nameEl) nameEl.textContent = draft.name || '—';
-  if (phoneEl) phoneEl.textContent = draft.phone || '—';
-  if (serviceEl) serviceEl.textContent = draft.service || '—';
-  if (packageEl) packageEl.textContent = pkg?.name || 'Standart İlan Paketi';
-  if (priceEl) priceEl.textContent = pkg?.priceLabel || '1.000 TL';
+  const payBtn = document.querySelector('[data-pay-button]');
+  const url = getCatalogPaymentUrl();
   if (payBtn) {
-    payBtn.setAttribute('href', buildListingPaymentUrl(draft));
+    payBtn.setAttribute('href', url);
     payBtn.setAttribute('target', '_blank');
     payBtn.setAttribute('rel', 'noopener');
   }

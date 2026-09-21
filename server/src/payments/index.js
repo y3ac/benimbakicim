@@ -10,9 +10,9 @@ import paytr from './paytr.js';
 
 // Paket tanimlari
 export const PACKAGES = {
-  base_300: { amount: config.pricing.base, label: 'İlan Paketi (2 Aday)', retailer: config.whatsapp.retailerIds.base },
-  unlock_300: { amount: config.pricing.unlock2, label: 'Ek Aday Açma', retailer: config.whatsapp.retailerIds.unlock2 },
-  unlock_900: { amount: config.pricing.unlock6, label: '6+ Aday Paketi', retailer: config.whatsapp.retailerIds.unlock6 },
+  base_300: { amount: config.pricing.base, label: 'İlan Paketi (3 Başvuru)', retailer: config.whatsapp.retailerIds.base },
+  unlock_300: { amount: config.pricing.unlock2, label: 'Ek 3 Başvuru Paketi', retailer: config.whatsapp.retailerIds.unlock2 },
+  unlock_900: { amount: config.pricing.unlock6, label: 'Ek 3 Başvuru Paketi', retailer: config.whatsapp.retailerIds.unlock6 },
 };
 
 // --- Saglayici implementasyonlari ---

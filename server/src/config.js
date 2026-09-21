@@ -73,12 +73,12 @@ export const config = {
   },
 
   pricing: {
-    base: num(process.env.PRICE_BASE, 300),
-    unlock2: num(process.env.PRICE_UNLOCK2, 300),
-    unlock6: num(process.env.PRICE_UNLOCK6, 900),
-    revealBaseCount: num(process.env.REVEAL_BASE_COUNT, 2),
-    revealUnlock2Count: num(process.env.REVEAL_UNLOCK2_COUNT, 2),
-    unlock6Threshold: num(process.env.UNLOCK6_THRESHOLD, 6),
+    base: num(process.env.PRICE_BASE, 1000),
+    unlock2: num(process.env.PRICE_UNLOCK2, 1000),
+    unlock6: num(process.env.PRICE_UNLOCK6, 1000),
+    revealBaseCount: num(process.env.REVEAL_BASE_COUNT, 3),
+    revealUnlock2Count: num(process.env.REVEAL_UNLOCK2_COUNT, 3),
+    unlock6Threshold: num(process.env.UNLOCK6_THRESHOLD, 3),
   },
 
   matching: {

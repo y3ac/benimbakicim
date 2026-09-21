@@ -253,9 +253,9 @@ const PAGE_SEO = {
   },
   'pages/ilan-ver.html': {
     path: '/pages/ilan-ver.html',
-    title: 'Bakıcı İlan Ver | İlan Paketleri — Benim Bakıcım',
-    description: 'Bakıcı, yardımcı veya temizlik ilanı verin. 1.000 TL ilan paketi ile ilanınız yayınlanır; başvuran adaylar WhatsApp ile paylaşılır.',
-    keywords: 'bakıcı ilan ver, bakıcı ilan paketi, yardımcı ilanı, ev yardımcısı ilanı, temizlik ilanı',
+    title: 'Bakıcı İlan Ver | 3 Başvuru Paketi — Benim Bakıcım',
+    description: 'Ödeme sonrası ilanınız bakıcı/yardımcı havuzunda yayınlanır. Paket başına en fazla 3 başvuran numarası WhatsApp ile iletilir. Referans kontrolü yapılmaz.',
+    keywords: 'bakıcı ilan ver, bakıcı ilan paketi, yardımcı ilanı, başvuru iletme, bakıcı havuzu',
   },
   'pages/is-ilanlari.html': {
     path: '/pages/is-ilanlari.html',

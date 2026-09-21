@@ -136,6 +136,36 @@ export const listings = {
       .run(...params);
     return this.getByCode(code);
   },
+  updateDetails(code, details = {}) {
+    const map = {
+      serviceType: 'service_type',
+      district: 'district',
+      liveIn: 'live_in',
+      salaryMin: 'salary_min',
+      salaryMax: 'salary_max',
+      startDate: 'start_date',
+      notes: 'notes',
+      aiText: 'ai_text',
+      source: 'source',
+    };
+    const fields = [];
+    const params = [];
+    for (const [key, column] of Object.entries(map)) {
+      if (details[key] === undefined) continue;
+      fields.push(`${column} = ?`);
+      if (key === 'liveIn') {
+        params.push(details.liveIn == null ? null : details.liveIn ? 1 : 0);
+      } else {
+        params.push(details[key]);
+      }
+    }
+    if (!fields.length) return this.getByCode(code);
+    params.push(code);
+    getDb()
+      .prepare(`UPDATE listings SET ${fields.join(', ')} WHERE code = ?`)
+      .run(...params);
+    return this.getByCode(code);
+  },
   dueForMatching(nowIso) {
     return getDb()
       .prepare(

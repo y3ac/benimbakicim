@@ -7,37 +7,45 @@ const SITE = {
   formProvider: 'cloudflare',
   formEndpoint: '/api/form',
   thankYouUrl: '/pages/tesekkur.html',
-  listingPaymentPage: '/pages/odeme.html',
-  // PayTR / iyzico / banka ödeme linki hazır olunca buraya yapıştırın.
-  // Boş bırakılırsa ödeme adımı WhatsApp üzerinden yönlendirir.
-  listingPaymentUrl: '',
+  // Ödeme yalnızca WhatsApp katalog üzerinden alınır.
+  paymentMethod: 'whatsapp_catalog',
+  catalogPaymentMessage:
+    'Merhaba, ilan paketi satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.',
+  catalogPaymentUrl:
+    'https://wa.me/905355963545?text=' +
+    encodeURIComponent(
+      'Merhaba, ilan paketi satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.'
+    ),
+  applicantsPerPackage: 3,
   listingPackages: [
     {
       id: 'standart',
-      name: 'Standart İlan Paketi',
+      name: 'İlan Paketi',
       price: 1000,
       priceLabel: '1.000 TL',
-      badge: 'Önerilen',
-      description: 'İlanınız yayınlanır; uygun adaylar WhatsApp üzerinden size iletilir.',
+      badge: '3 Başvuru',
+      description:
+        'WhatsApp katalogdan ödeme sonrası ilanınız yayınlanır. Paket başına en fazla 3 başvuran numarası iletilir.',
       features: [
-        'İlanınız aday havuzunda yayınlanır',
-        'Başvuran adayların telefon ve bilgileri WhatsApp ile paylaşılır',
-        'Kısa sürede eşleştirme desteği',
-        'Tek seferlik paket ücreti'
+        'Ödeme yalnızca WhatsApp katalog üzerinden',
+        'Ödeme sonrası ilanınızı oluşturursunuz',
+        'Bakıcı / yardımcı havuzunda yayın',
+        'Paket başına en fazla 3 başvuran numarası',
+        'Referans kontrolü / ön görüşme yok'
       ]
     },
     {
-      id: 'oncelikli',
-      name: 'Öncelikli İlan Paketi',
-      price: 1500,
-      priceLabel: '1.500 TL',
-      badge: 'Hızlı',
-      description: 'Öncelikli yayın ve daha hızlı aday paylaşımı ile süreci hızlandırın.',
+      id: 'ek',
+      name: 'Ek 3 Başvuru Paketi',
+      price: 1000,
+      priceLabel: '1.000 TL',
+      badge: '+3 Numara',
+      description: 'Daha fazla numara için WhatsApp katalogdan aynı paketi tekrar satın alın.',
       features: [
-        'Standart paketin tüm avantajları',
-        'Öncelikli yayın sırası',
-        'Daha hızlı WhatsApp aday paylaşımı',
-        'Öncelikli danışman takibi'
+        'Ödeme WhatsApp katalog üzerinden',
+        'Mevcut ilanınıza +3 numara',
+        'Her paket yalnızca 3 numara içerir',
+        'İstediğiniz kadar tekrarlanabilir'
       ]
     }
   ],
