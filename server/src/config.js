@@ -36,6 +36,7 @@ export const config = {
     catalogId: process.env.WHATSAPP_CATALOG_ID || '',
     retailerIds: {
       base: process.env.CATALOG_RETAILER_ID_BASE || 'iln-base-300',
+      acil: process.env.CATALOG_RETAILER_ID_ACIL || 'iln-base-acil',
       unlock2: process.env.CATALOG_RETAILER_ID_UNLOCK2 || 'iln-unlock-300',
       unlock6: process.env.CATALOG_RETAILER_ID_UNLOCK6 || 'iln-unlock-900',
     },
@@ -74,6 +75,7 @@ export const config = {
 
   pricing: {
     base: num(process.env.PRICE_BASE, 1000),
+    acil: num(process.env.PRICE_ACIL, 1500),
     unlock2: num(process.env.PRICE_UNLOCK2, 1000),
     unlock6: num(process.env.PRICE_UNLOCK6, 1000),
     revealBaseCount: num(process.env.REVEAL_BASE_COUNT, 3),

@@ -10,22 +10,24 @@ const SITE = {
   // Ödeme yalnızca WhatsApp katalog üzerinden alınır.
   paymentMethod: 'whatsapp_catalog',
   catalogPaymentMessage:
-    'Merhaba, ilan paketi satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.',
+    'Merhaba, Standart İlan Paketi (1.000 TL) satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.',
   catalogPaymentUrl:
     'https://wa.me/905355963545?text=' +
     encodeURIComponent(
-      'Merhaba, ilan paketi satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.'
+      'Merhaba, Standart İlan Paketi (1.000 TL) satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.'
     ),
   applicantsPerPackage: 3,
   listingPackages: [
     {
       id: 'standart',
-      name: 'İlan Paketi',
+      name: 'Standart İlan Paketi',
       price: 1000,
       priceLabel: '1.000 TL',
-      badge: '3 Başvuru',
+      badge: 'Önerilen',
       description:
         'WhatsApp katalogdan ödeme sonrası ilanınız yayınlanır. Paket başına en fazla 3 başvuran numarası iletilir.',
+      whatsappMessage:
+        'Merhaba, Standart İlan Paketi (1.000 TL) satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.',
       features: [
         'Ödeme yalnızca WhatsApp katalog üzerinden',
         'Ödeme sonrası ilanınızı oluşturursunuz',
@@ -35,17 +37,21 @@ const SITE = {
       ]
     },
     {
-      id: 'ek',
-      name: 'Ek 3 Başvuru Paketi',
-      price: 1000,
-      priceLabel: '1.000 TL',
-      badge: '+3 Numara',
-      description: 'Daha fazla numara için WhatsApp katalogdan aynı paketi tekrar satın alın.',
+      id: 'acil',
+      name: 'Acil İlan Paketi',
+      price: 1500,
+      priceLabel: '1.500 TL',
+      badge: 'Hızlı',
+      description:
+        'Öncelikli yayın ve daha hızlı başvuru iletimi. Paket başına yine en fazla 3 numara iletilir.',
+      whatsappMessage:
+        'Merhaba, Acil İlan Paketi (1.500 TL) satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.',
       features: [
-        'Ödeme WhatsApp katalog üzerinden',
-        'Mevcut ilanınıza +3 numara',
-        'Her paket yalnızca 3 numara içerir',
-        'İstediğiniz kadar tekrarlanabilir'
+        'Standart paketin tüm avantajları',
+        'Öncelikli yayın sırası',
+        'Daha hızlı WhatsApp başvuru iletimi',
+        'Paket başına en fazla 3 başvuran numarası',
+        'Daha fazla numara için ek paket alınabilir'
       ]
     }
   ],

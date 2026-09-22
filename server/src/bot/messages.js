@@ -1,7 +1,7 @@
 import config from '../config.js';
 import { serviceLabel } from '../domain/taxonomy.js';
 
-const { base, unlock2, unlock6, revealBaseCount } = config.pricing;
+const { base, acil, unlock2, unlock6, revealBaseCount } = config.pricing;
 
 export const messages = {
   welcome:
@@ -48,8 +48,17 @@ export const messages = {
   paymentIntro: (listing) =>
     `İlan kodunuz: ${listing.code}\n\n` +
     `Ödeme yalnızca WhatsApp katalog üzerinden alınır.\n` +
-    `İlan paketi ${base} TL — paket başına en fazla ${revealBaseCount} başvuran numarası.\n` +
+    `Standart İlan Paketi ${base} TL · Acil İlan Paketi ${acil} TL.\n` +
+    `Her paket en fazla ${revealBaseCount} başvuran numarası içerir.\n` +
+    'Daha fazla numara için Ek 3 Başvuru paketini alabilirsiniz.\n' +
     'Ödemeyi katalogdan tamamladıktan sonra ilan bilgilerinizi yazarak ilanınızı oluşturursunuz.',
+
+  packageChoice:
+    'Hangi ilan paketini almak istiyorsunuz?',
+  packageButtons: [
+    { id: 'pkg_standart', title: `Standart (${base} TL)` },
+    { id: 'pkg_acil', title: `Acil (${acil} TL)` },
+  ],
 
   catalogPaymentHint:
     'Yukarıdaki katalog ürününden ödemeyi tamamlayın. Ödeme onayından sonra ilan detaylarınızı soracağız.',
@@ -81,7 +90,7 @@ export const messages = {
       lines.push('');
       lines.push(
         `Ayrıca ${remainingCount} başvuru daha var. ` +
-        'Ek numaralar için aynı paketi tekrar satın almanız gerekir.'
+        'Ek numaralar için WhatsApp katalogdan Ek 3 Başvuru paketini satın almanız gerekir.'
       );
     }
     return lines.join('\n');
@@ -99,19 +108,22 @@ export const messages = {
   unlockOffer: (remainingCount) => {
     if (remainingCount >= config.pricing.unlock6Threshold) {
       return (
-        `${remainingCount} uygun aday daha var. Tümünün numarasını açmak için ${unlock6} TL ` +
+        `${remainingCount} uygun aday daha var. Ek 3 Başvuru / tüm numaralar için ${unlock6} TL ` +
         'ödeyebilirsiniz.'
       );
     }
     return (
-      `${remainingCount} uygun aday daha var. Sıradaki adayların numarasını açmak için ` +
-      `${unlock2} TL ödeyebilirsiniz.`
+      `${remainingCount} uygun aday daha var. Sıradaki numaralar için Ek 3 Başvuru paketi ` +
+      `${unlock2} TL’dir.`
     );
   },
   unlockButtons: (remainingCount) => [
     {
       id: remainingCount >= config.pricing.unlock6Threshold ? 'unlock_6' : 'unlock_2',
-      title: remainingCount >= config.pricing.unlock6Threshold ? `Tümü (${unlock6} TL)` : `Aç (${unlock2} TL)`,
+      title:
+        remainingCount >= config.pricing.unlock6Threshold
+          ? `Ek (${unlock6} TL)`
+          : `Ek 3 (${unlock2} TL)`,
     },
     { id: 'unlock_no', title: 'Şimdilik yeter' },
   ],

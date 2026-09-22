@@ -70,7 +70,7 @@ export const finalizeMatching = async (listingCode) => {
 
   // Ilk paket odemesi yapilmis mi?
   const paid = payments.listPaidByListing(listingCode);
-  const basePaid = paid.some((p) => p.package === 'base_300');
+  const basePaid = paid.some((p) => p.package === 'base_300' || p.package === 'base_acil');
   if (!basePaid) {
     // Odeme yoksa numara acilmaz; sadece kac aday oldugunu bildir.
     await wa.sendText(

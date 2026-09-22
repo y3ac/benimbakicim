@@ -203,22 +203,25 @@ function initForms() {
   initPaymentPage();
 }
 
-function getCatalogPaymentUrl() {
-  if (typeof SITE !== 'undefined' && SITE.catalogPaymentUrl) {
-    return SITE.catalogPaymentUrl;
-  }
-  const number = (typeof SITE !== 'undefined' && SITE.whatsappNumber) || '905355963545';
+function getCatalogPaymentUrl(packageId) {
+  const number = (typeof SITE !== 'undefined' && SITE.whatsappNumber) || '905355963545'
+  const pkg = packageId ? findListingPackage(packageId) : null
   const text =
+    (pkg && pkg.whatsappMessage) ||
     (typeof SITE !== 'undefined' && SITE.catalogPaymentMessage) ||
-    'Merhaba, ilan paketi satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım.';
-  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+    'Merhaba, Standart İlan Paketi (1.000 TL) satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım.'
+  if (!packageId && typeof SITE !== 'undefined' && SITE.catalogPaymentUrl) {
+    return SITE.catalogPaymentUrl
+  }
+  return `https://wa.me/${number}?text=${encodeURIComponent(text)}`
 }
 
 function initCatalogPayLinks() {
-  const url = getCatalogPaymentUrl();
   document.querySelectorAll('[data-catalog-pay]').forEach((el) => {
-    if (el.tagName === 'A') el.setAttribute('href', url);
-  });
+    const packageId = el.getAttribute('data-catalog-pay') || 'standart'
+    const url = getCatalogPaymentUrl(packageId === '' ? 'standart' : packageId)
+    if (el.tagName === 'A') el.setAttribute('href', url)
+  })
 }
 
 function getListingPackages() {

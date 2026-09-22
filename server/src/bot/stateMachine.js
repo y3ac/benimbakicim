@@ -134,6 +134,8 @@ export const handleInbound = async ({ waId, name, text, buttonId }) => {
       return seekerNotes(waId, name, text, convo);
     case 'seeker_confirm':
       return seekerConfirm(waId, buttonId, text, convo);
+    case 'choose_package':
+      return choosePackage(waId, buttonId, text, convo);
     case 'awaiting_payment':
       return awaitingPayment(waId, convo);
     case 'matching':
@@ -284,10 +286,10 @@ const seekerKvkk = async (waId, buttonId, text) => {
   });
   listings.setStatus(listing.code, 'awaiting_payment');
   setState(waId, {
-    state: 'awaiting_payment',
+    state: 'choose_package',
     context: { kvkkOk: true, listingCode: listing.code, prepaid: true, pendingServiceType: pending || null },
   });
-  await sendPackageOffer(waId, listing, 'base_300');
+  await wa.sendButtons(waId, messages.packageChoice, messages.packageButtons);
 };
 
 const seekerService = async (waId, text, convo) => {
@@ -410,8 +412,30 @@ const seekerConfirm = async (waId, buttonId, text, convo) => {
   }
 
   listings.setStatus(code, 'awaiting_payment');
-  await sendPackageOffer(waId, listing, 'base_300');
-  setState(waId, { state: 'awaiting_payment', context: { listingCode: code } });
+  setState(waId, { state: 'choose_package', context: { listingCode: code } });
+  await wa.sendButtons(waId, messages.packageChoice, messages.packageButtons);
+};
+
+const choosePackage = async (waId, buttonId, text, convo) => {
+  const code = convo.context.listingCode;
+  const listing = code ? listings.getByCode(code) : null;
+  if (!listing) {
+    return wa.sendText(waId, 'İşleme devam etmek için ilan bulunamadı.');
+  }
+
+  let packageKey = null;
+  if (buttonId === 'pkg_acil' || /acil/i.test(text || '')) packageKey = 'base_acil';
+  if (buttonId === 'pkg_standart' || /standart/i.test(text || '')) packageKey = 'base_300';
+
+  if (!packageKey) {
+    return wa.sendButtons(waId, messages.packageChoice, messages.packageButtons);
+  }
+
+  setState(waId, {
+    state: 'awaiting_payment',
+    context: { listingCode: code, packageKey },
+  });
+  await sendPackageOffer(waId, listing, packageKey);
 };
 
 const awaitingPayment = async (waId, convo) => {

@@ -6,6 +6,7 @@ import wa from '../whatsapp/client.js';
 import messages from '../bot/messages.js';
 import { logEvent } from './audit.js';
 import { saveConversation } from '../store/blobs.js';
+import { isBasePackage } from '../payments/index.js';
 
 const markSeekerPaid = async (waId, listingCode) => {
   if (!waId) return;
@@ -44,7 +45,7 @@ export const onPaymentPaid = async (reference) => {
   const seeker = seekers.getById(listing.seeker_id);
   const waId = payment.wa_id || seeker?.wa_id;
 
-  if (payment.package === 'base_300') {
+  if (isBasePackage(payment.package)) {
     // Once odeme: once katalog odendi, simdi ilan detaylarini topla.
     if (isPrepaidShell(listing)) {
       if (waId) {

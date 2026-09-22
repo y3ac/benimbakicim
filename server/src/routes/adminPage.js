@@ -112,7 +112,12 @@ const EVENT_LABELS = {
   cancel_requested:'İptal talebi (onay bekliyor)', cancel_rejected:'İptal reddedildi', listing_cancelled:'İlan iptal edildi',
   refund_requested:'İade talebi (onay bekliyor)', refund_done:'İade yapıldı', refund_rejected:'İade reddedildi'
 };
-const PKG_LABELS = { base_300:'İlan Paketi (3 Başvuru)', unlock_300:'Ek 3 Başvuru', unlock_900:'Ek 3 Başvuru' };
+const PKG_LABELS = {
+  base_300: 'Standart İlan Paketi',
+  base_acil: 'Acil İlan Paketi',
+  unlock_300: 'Ek 3 Başvuru',
+  unlock_900: 'Ek 3 Başvuru',
+};
 const evLabel = (t) => EVENT_LABELS[t] || t;
 
 async function load(){

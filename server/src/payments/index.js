@@ -10,10 +10,30 @@ import paytr from './paytr.js';
 
 // Paket tanimlari
 export const PACKAGES = {
-  base_300: { amount: config.pricing.base, label: 'İlan Paketi (3 Başvuru)', retailer: config.whatsapp.retailerIds.base },
-  unlock_300: { amount: config.pricing.unlock2, label: 'Ek 3 Başvuru Paketi', retailer: config.whatsapp.retailerIds.unlock2 },
-  unlock_900: { amount: config.pricing.unlock6, label: 'Ek 3 Başvuru Paketi', retailer: config.whatsapp.retailerIds.unlock6 },
+  base_300: {
+    amount: config.pricing.base,
+    label: 'Standart İlan Paketi',
+    retailer: config.whatsapp.retailerIds.base,
+  },
+  base_acil: {
+    amount: config.pricing.acil,
+    label: 'Acil İlan Paketi',
+    retailer: config.whatsapp.retailerIds.acil,
+  },
+  unlock_300: {
+    amount: config.pricing.unlock2,
+    label: 'Ek 3 Başvuru Paketi',
+    retailer: config.whatsapp.retailerIds.unlock2,
+  },
+  unlock_900: {
+    amount: config.pricing.unlock6,
+    label: 'Ek 3 Başvuru Paketi',
+    retailer: config.whatsapp.retailerIds.unlock6,
+  },
 };
+
+export const isBasePackage = (packageKey) =>
+  packageKey === 'base_300' || packageKey === 'base_acil';
 
 // --- Saglayici implementasyonlari ---
 // Her saglayici async createLink() -> { link, providerRef } | null (null => fallback) doner.

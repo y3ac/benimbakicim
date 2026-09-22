@@ -42,7 +42,7 @@ python3 -m http.server 8080
 ## Özelleştirme
 
 1. **WhatsApp:** `0535 596 35 45` — başvuru iletimi ve ödeme yönlendirmesi
-2. **İlan paketi:** 1.000 TL — ödeme **yalnızca WhatsApp katalog** üzerinden. Ödeme sonrası ilan oluşturulur; paket başına en fazla 3 başvuran numarası.
+2. **İlan paketleri:** Standart 1.000 TL · Acil 1.500 TL — ödeme **yalnızca WhatsApp katalog** üzerinden. Her paket en fazla 3 başvuran numarası; daha fazlası için Ek 3 Başvuru.
 3. **Kapsam:** Yalnızca ilan yayını + başvuru iletimi. Referans kontrolü / ön görüşme / yerleştirme yok.
 4. **Formlar:** `/api/form` (Cloudflare). `NOTIFY_WEBHOOK_URL` veya KV `FORMS` eklenebilir
 5. **Adres:** İletişim bölümlerindeki adres bilgisini güncelleyin
