@@ -1,18 +1,11 @@
 # Dependencies
 node_modules/
-server/node_modules/
 
 # Local / generated
 .netlify
 dist/
 *.sqlite
 *.sqlite-journal
-
-# Bundles
-netlify/lib/api_bundle.cjs
-netlify/lib/matching_bundle.cjs
-netlify/functions/_api.bundle.cjs
-netlify/functions/_matching.bundle.cjs
 
 # Secrets and OS
 .env

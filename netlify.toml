@@ -1,18 +1,9 @@
 [build]
-  command = "npm install && npm run bundle:functions"
+  command = "echo 'Static site — primary deploy is Cloudflare Workers (npm run deploy:cf)'"
   publish = "."
 
 [build.environment]
   NODE_VERSION = "20"
-  SERVERLESS_DB = "1"
-  DB_PATH = "/tmp/benimbakicim.sqlite"
-
-# Backend Netlify Functions (Express + sql.js WASM + Blobs)
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-  external_node_modules = ["iyzipay", "sql.js"]
-  included_files = ["node_modules/sql.js/dist/**"]
 
 [[headers]]
   for = "/*"
@@ -26,63 +17,6 @@
   [headers.values]
     Content-Type = "application/xml; charset=utf-8"
 
-# --- Backend yollari tek fonksiyona yonlendirilir (rewrite) ---
-[[redirects]]
-  from = "/webhook"
-  to = "/.netlify/functions/api"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/payments/*"
-  to = "/.netlify/functions/api"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/pay/*"
-  to = "/.netlify/functions/api"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/admin"
-  to = "/.netlify/functions/api"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/health"
-  to = "/.netlify/functions/api"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/health/*"
-  to = "/.netlify/functions/api"
-  status = 200
-  force = true
-
-# --- Kaynak klasorlerini disariya kapat ---
-[[redirects]]
-  from = "/server/*"
-  to = "/"
-  status = 404
-  force = true
-
-[[redirects]]
-  from = "/netlify/*"
-  to = "/"
-  status = 404
-  force = true
-
-# Mevcut: index.html'i koke yonlendir
 [[redirects]]
   from = "/index.html"
   to = "/"

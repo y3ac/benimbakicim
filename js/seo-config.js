@@ -50,13 +50,13 @@ const BUSINESS = {
   whatsapp: 'https://wa.me/905355963545',
   instagram: 'https://instagram.com/yatili.bakici',
   address: {
-    street: 'Cevizli, Zuhal Cd., Ritim İstanbul Avm D Blok Kat 12',
-    locality: 'İstanbul',
+    street: 'Soğanlık Yeni Mah. Baltacı Mehmetpaşa Sk. AC Moment Yapı B Blok No: 4 B İç Kapı No: 286',
+    locality: 'Kartal/İstanbul',
     region: 'İstanbul',
-    postalCode: '34846',
+    postalCode: '34880',
     country: 'TR',
   },
-  geo: { lat: 40.9234, lng: 29.1556 },
+  geo: { lat: 40.9125, lng: 29.1890 },
   hours: 'Mo-Sa 09:00-19:00',
 };
 
@@ -254,8 +254,8 @@ const PAGE_SEO = {
   'pages/ilan-ver.html': {
     path: '/pages/ilan-ver.html',
     title: 'Bakıcı İlan Ver | Standart 1.000 TL · Acil 1.500 TL — Benim Bakıcım',
-    description: 'Standart İlan Paketi 1.000 TL, Acil İlan Paketi 1.500 TL. Ödeme WhatsApp katalog üzerinden; paket başına en fazla 3 başvuran numarası. Ek 3 Başvuru ayrıca alınabilir.',
-    keywords: 'bakıcı ilan ver, standart ilan paketi, acil ilan paketi, bakıcı havuzu, başvuru iletme',
+    description: 'Standart 1.000 TL, Acil 1.500 TL. WhatsApp katalogdan sipariş, havale/EFT ile ödeme (açıklamaya ilan kodu); onay sonrası ilan. Paket başına en fazla 3 başvuru.',
+    keywords: 'bakıcı ilan ver, standart ilan paketi, acil ilan paketi, havale eft, bakıcı havuzu',
   },
   'pages/is-ilanlari.html': {
     path: '/pages/is-ilanlari.html',
@@ -291,19 +291,19 @@ const PAGE_SEO = {
   'pages/kvkk.html': {
     path: '/pages/kvkk.html',
     title: 'KVKK Aydınlatma Metni | Benim Bakıcım',
-    description: 'Benim Bakıcım KVKK aydınlatma metni.',
-    keywords: 'kvkk',
+    description: 'Benim Bakıcım KVKK aydınlatma metni: kişisel verilerin işlenme amacı, hukuki sebep ve haklarınız.',
+    keywords: 'kvkk, kişisel verilerin korunması',
   },
   'pages/gizlilik.html': {
     path: '/pages/gizlilik.html',
     title: 'Gizlilik Politikası | Benim Bakıcım',
-    description: 'Benim Bakıcım gizlilik politikası.',
+    description: 'Benim Bakıcım gizlilik politikası: toplanan veriler, kullanım amaçları ve saklama.',
     keywords: 'gizlilik politikası',
   },
   'pages/kullanim-kosullari.html': {
     path: '/pages/kullanim-kosullari.html',
     title: 'Kullanım Koşulları | Benim Bakıcım',
-    description: 'Benim Bakıcım kullanım koşulları.',
+    description: 'Benim Bakıcım web sitesi kullanım koşulları ve dijital ilan hizmeti kuralları.',
     keywords: 'kullanım koşulları',
   },
   'pages/cerez-politikasi.html': {
@@ -311,6 +311,18 @@ const PAGE_SEO = {
     title: 'Çerez Politikası | Benim Bakıcım',
     description: 'Benim Bakıcım çerez politikası.',
     keywords: 'çerez politikası',
+  },
+  'pages/mesafeli-satis-sozlesmesi.html': {
+    path: '/pages/mesafeli-satis-sozlesmesi.html',
+    title: 'Mesafeli Satış Sözleşmesi | Benim Bakıcım',
+    description: 'Dijital ilan yayını ve başvuru iletim hizmeti için mesafeli satış sözleşmesi, fiyat ve teslimat şartları.',
+    keywords: 'mesafeli satış sözleşmesi, ilan paketi',
+  },
+  'pages/iptal-iade.html': {
+    path: '/pages/iptal-iade.html',
+    title: 'İptal ve İade Koşulları | Benim Bakıcım',
+    description: 'İlan paketi iptal, cayma hakkı ve iade koşulları.',
+    keywords: 'iptal iade, cayma hakkı',
   },
   'pages/tesekkur.html': {
     path: '/pages/tesekkur.html',

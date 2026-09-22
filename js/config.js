@@ -7,15 +7,24 @@ const SITE = {
   formProvider: 'cloudflare',
   formEndpoint: '/api/form',
   thankYouUrl: '/pages/tesekkur.html',
-  // Ödeme yalnızca WhatsApp katalog üzerinden alınır.
-  paymentMethod: 'whatsapp_catalog',
+  paymentMethod: 'catalog_havale',
+  bankTransfer: {
+    bankName: '',
+    accountHolder: 'Benim Bakıcım',
+    iban: '',
+    transferNote: 'Havale/EFT açıklama alanına ilan kodunuzu yazın',
+  },
+  orderReplyTemplate:
+    'Siparişiniz alındı. Ödeme için havale/EFT ile aşağıdaki IBAN’a gönderim yapabilirsiniz.\n\n' +
+    'Hesap sahibi: Benim Bakıcım\n' +
+    'IBAN: (buraya IBAN)\n\n' +
+    'Açıklama alanına ilan kodunuzu yazın.\n' +
+    'Ödeme görünür görünmez siparişi onaylayıp ilan sürecine devam ederiz.',
   catalogPaymentMessage:
-    'Merhaba, Standart İlan Paketi (1.000 TL) satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.',
+    'Merhaba, Standart İlan Paketi (1.000 TL) sipariş etmek istiyorum.',
   catalogPaymentUrl:
     'https://wa.me/905355963545?text=' +
-    encodeURIComponent(
-      'Merhaba, Standart İlan Paketi (1.000 TL) satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.'
-    ),
+    encodeURIComponent('Merhaba, Standart İlan Paketi (1.000 TL) sipariş etmek istiyorum.'),
   applicantsPerPackage: 3,
   listingPackages: [
     {
@@ -25,15 +34,14 @@ const SITE = {
       priceLabel: '1.000 TL',
       badge: 'Önerilen',
       description:
-        'WhatsApp katalogdan ödeme sonrası ilanınız yayınlanır. Paket başına en fazla 3 başvuran numarası iletilir.',
-      whatsappMessage:
-        'Merhaba, Standart İlan Paketi (1.000 TL) satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.',
+        'İlanınız yayınlanır; en fazla 3 başvuran telefonu WhatsApp ve e-posta ile iletilir. Yayın, ödemeden sonra en geç 24 saat içinde başlar.',
+      whatsappMessage: 'Merhaba, Standart İlan Paketi (1.000 TL) sipariş etmek istiyorum.',
       features: [
-        'Ödeme yalnızca WhatsApp katalog üzerinden',
-        'Ödeme sonrası ilanınızı oluşturursunuz',
-        'Bakıcı / yardımcı havuzunda yayın',
-        'Paket başına en fazla 3 başvuran numarası',
-        'Referans kontrolü / ön görüşme yok'
+        'İlan bakıcı / yardımcı havuzunda yayınlanır',
+        'En fazla 3 başvuran telefon numarası',
+        'WhatsApp ve e-posta ile iletim',
+        'Ödeme sonrası en geç 24 saat',
+        'Görüşmeyi siz yönetirsiniz'
       ]
     },
     {
@@ -43,19 +51,37 @@ const SITE = {
       priceLabel: '1.500 TL',
       badge: 'Hızlı',
       description:
-        'Öncelikli yayın ve daha hızlı başvuru iletimi. Paket başına yine en fazla 3 numara iletilir.',
-      whatsappMessage:
-        'Merhaba, Acil İlan Paketi (1.500 TL) satın almak istiyorum. WhatsApp katalog üzerinden ödeme yapacağım; ödeme sonrası ilanımı oluşturmak istiyorum.',
+        'Öncelikli yayın; ödemeden sonra en geç 12 saat. En fazla 3 numara WhatsApp ve e-posta ile iletilir.',
+      whatsappMessage: 'Merhaba, Acil İlan Paketi (1.500 TL) sipariş etmek istiyorum.',
       features: [
-        'Standart paketin tüm avantajları',
-        'Öncelikli yayın sırası',
-        'Daha hızlı WhatsApp başvuru iletimi',
-        'Paket başına en fazla 3 başvuran numarası',
-        'Daha fazla numara için ek paket alınabilir'
+        'Öncelikli ilan yayını',
+        'En fazla 3 başvuran telefon numarası',
+        'WhatsApp ve e-posta ile iletim',
+        'Ödeme sonrası en geç 12 saat',
+        'Görüşmeyi siz yönetirsiniz'
       ]
     }
   ],
-  address: 'Cevizli, Zuhal Cd., 34846 Maltepe/İstanbul, Ritim İstanbul Avm D Blok Kat 12',
+  address: 'Soğanlık Yeni Mah. Baltacı Mehmetpaşa Sk. AC Moment Yapı B Blok No: 4 B İç Kapı No: 286, Kartal/İstanbul',
+  phoneDisplay: '0535 596 35 45',
+  phoneTel: '+905355963545',
+  merchant: {
+    brandName: 'Benim Bakıcım',
+    legalName: 'Benim Bakıcım',
+    taxOffice: '',
+    taxNumber: '',
+    mersis: '',
+    email: 'info@benimbakicim.com',
+    workingHours: 'Pazartesi–Cumartesi 09:00–19:00',
+  },
+  serviceDefinition: {
+    title: 'İlan yayını ve başvuru iletimi',
+    summary:
+      'Ödeme sonrası ilanınız bakıcı/yardımcı havuzunda yayınlanır; başvuran telefon numaraları WhatsApp ve e-posta ile iletilir (paket başına en fazla 3).',
+    deliveryWindow:
+      'Ödeme tamamlandıktan sonra Standart pakette en geç 24 saat, Acil pakette en geç 12 saat içinde ilan yayını başlar. Başvuran bilgileri başvuru geldikçe WhatsApp ve e-posta ile iletilir.',
+    deliveryChannel: 'WhatsApp ve e-posta',
+  },
   instagram: 'https://instagram.com/yatili.bakici',
   instagramHandle: '@yatili.bakici',
 }

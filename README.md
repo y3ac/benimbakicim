@@ -42,7 +42,7 @@ python3 -m http.server 8080
 ## Özelleştirme
 
 1. **WhatsApp:** `0535 596 35 45` — başvuru iletimi ve ödeme yönlendirmesi
-2. **İlan paketleri:** Standart 1.000 TL · Acil 1.500 TL — ödeme **yalnızca WhatsApp katalog** üzerinden. Her paket en fazla 3 başvuran numarası; daha fazlası için Ek 3 Başvuru.
+2. **İlan paketleri:** Standart 1.000 TL · Acil 1.500 TL — somut çıktı: dijital ilan yayını + en fazla 3 başvuru numarası. Katalog sipariş + havale/EFT. Yasal: Mesafeli Satış, İptal/İade, Gizlilik, KVKK (footer).
 3. **Kapsam:** Yalnızca ilan yayını + başvuru iletimi. Referans kontrolü / ön görüşme / yerleştirme yok.
 4. **Formlar:** `/api/form` (Cloudflare). `NOTIFY_WEBHOOK_URL` veya KV `FORMS` eklenebilir
 5. **Adres:** İletişim bölümlerindeki adres bilgisini güncelleyin
@@ -64,7 +64,7 @@ Form bildirimleri için Settings → Variables:
 
 - `NOTIFY_WEBHOOK_URL` (Make / Zapier / Discord webhook)
 
-WhatsApp eşleştirme backend’i (`/webhook`, `/payments`, `/admin`) bu yayına dahil değildir.
+Ödeme: WhatsApp katalog siparişi + havale/EFT (manuel onay). Otomatik WhatsApp bot / eşleştirme backend’i kaldırılmıştır.
 
 ## SEO
 

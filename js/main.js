@@ -200,6 +200,7 @@ function initForms() {
 
   initPackageCards();
   initCatalogPayLinks();
+  initBankTransferInfo();
   initPaymentPage();
 }
 
@@ -221,6 +222,30 @@ function initCatalogPayLinks() {
     const packageId = el.getAttribute('data-catalog-pay') || 'standart'
     const url = getCatalogPaymentUrl(packageId === '' ? 'standart' : packageId)
     if (el.tagName === 'A') el.setAttribute('href', url)
+  })
+}
+
+function initBankTransferInfo() {
+  if (typeof SITE === 'undefined' || !SITE.bankTransfer) return
+  const bank = SITE.bankTransfer
+  const holder = bank.accountHolder || 'Benim Bakıcım'
+  const iban = (bank.iban || '').trim()
+  const note = bank.transferNote || 'Açıklama alanına ilan kodunuzu yazın'
+
+  document.querySelectorAll('[data-bank-holder]').forEach((el) => {
+    el.textContent = bank.bankName
+      ? `Hesap sahibi: ${holder} · ${bank.bankName}`
+      : `Hesap sahibi: ${holder}`
+  })
+  document.querySelectorAll('[data-bank-iban]').forEach((el) => {
+    el.textContent = iban
+      ? `IBAN: ${iban}`
+      : 'IBAN: sipariş sonrası WhatsApp’tan iletilir'
+  })
+  document.querySelectorAll('[data-bank-note]').forEach((el) => {
+    el.textContent =
+      note +
+      '. Dekontu WhatsApp’tan paylaşabilirsiniz. Ödeme görünür görünmez sipariş onaylanır.'
   })
 }
 
